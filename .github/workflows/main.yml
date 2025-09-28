@@ -27,6 +27,10 @@ jobs:
       - name: Load image into Minikube
         run: minikube image load node-hello:latest
 
+      - name: Start Minikube
+        run: minikube start
+        
+
       - name: Deploy to Minikube
         run: |
           kubectl apply -f k8s/deployment.yaml
