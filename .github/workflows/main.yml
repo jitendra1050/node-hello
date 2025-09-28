@@ -18,19 +18,27 @@ jobs:
         with:
           node-version: 18
 
-      - name: Build Docker image
-        run: docker build -t jitendrathakur2/node-hello:latest .
+      - name: Build and Tag Docker image
+        run: |
+          TAG=$(date +%s)
+          echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+          docker build -t jitendrathakur2/node-hello:$TAG .
+          docker tag jitendrathakur2/node-hello:$TAG jitendrathakur2/node-hello:latest
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Push Docker image
-        run: docker push jitendrathakur2/node-hello:latest
-
-      - name: Deploy to Kubernetes
         run: |
+          docker push jitendrathakur2/node-hello:$IMAGE_TAG
+          docker push jitendrathakur2/node-hello:latest
+
+      - name: Update Kubernetes Deployment
+        run: |
+          # Replace image in deployment YAML with the new tag
+          sed -i "s|image: jitendrathakur2/node-hello:.*|image: jitendrathakur2/node-hello:${IMAGE_TAG}|" k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml
           kubectl rollout status deployment/node-hello
-      - name: Get Deployment url
+
+      - name: Get Deployment URL
         run: minikube service node-hello --url
-        
