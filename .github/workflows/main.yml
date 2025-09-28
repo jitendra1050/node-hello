@@ -31,3 +31,6 @@ jobs:
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl rollout status deployment/node-hello
+      - name: Get Deployment url
+        run: minikube service node-hello --url
+        
