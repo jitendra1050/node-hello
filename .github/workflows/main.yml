@@ -35,8 +35,10 @@ jobs:
 
       - name: Update Kubernetes Deployment
         run: |
-          # Replace image in deployment YAML with the new tag
-          sed -i "s|image: jitendrathakur2/node-hello:.*|image: jitendrathakur2/node-hello:${IMAGE_TAG}|" k8s/deployment.yaml
+          # Cross-platform compatible sed
+          sed -i.bak "s|image: jitendrathakur2/node-hello:.*|image: jitendrathakur2/node-hello:${IMAGE_TAG}|" k8s/deployment.yaml
+          rm -f k8s/deployment.yaml.bak
+
           kubectl apply -f k8s/deployment.yaml
           kubectl rollout status deployment/node-hello
 
