@@ -33,15 +33,16 @@ jobs:
           docker push jitendrathakur2/node-hello:$IMAGE_TAG
           docker push jitendrathakur2/node-hello:latest
 
-      - name: Update Kubernetes Deployment
+      - name: Deploy to Kubernetes
         run: |
-          # Cross-platform compatible sed
           sed -i.bak "s|image: jitendrathakur2/node-hello:.*|image: jitendrathakur2/node-hello:${IMAGE_TAG}|" k8s/deployment.yaml
           rm -f k8s/deployment.yaml.bak
 
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
-          kubectl rollout status deployment/node-hello
+          kubectl apply -f k8s/
+          
+          kubectl rollout status deployment/node-hello --timeout=120s
 
-      - name: Get Deployment URL
-        run: minikube service node-hello --url
+      - name: Validate Service & Endpoints (CI-safe)
+        run: |
+          kubectl get svc node-hello
+          kubectl get endpoints node-hello
