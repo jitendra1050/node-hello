@@ -40,6 +40,7 @@ jobs:
           rm -f k8s/deployment.yaml.bak
 
           kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
           kubectl rollout status deployment/node-hello
 
       - name: Get Deployment URL
